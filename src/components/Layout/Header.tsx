@@ -238,6 +238,13 @@ const Header = () => {
   const applyUpdatedProfile = (updatedProfile: Record<string, unknown>) => {
     if (!user) return;
 
+    const nextPhoto =
+      typeof updatedProfile.photo === "string"
+        ? updatedProfile.photo.trim() || undefined
+        : updatedProfile.photo === null
+          ? undefined
+          : user.photo;
+
     dispatch(
       setUser({
         ...user,
@@ -249,10 +256,7 @@ const Header = () => {
           typeof updatedProfile.last_name === "string"
             ? updatedProfile.last_name
             : user.last_name,
-        photo:
-          typeof updatedProfile.photo === "string" && updatedProfile.photo
-            ? updatedProfile.photo
-            : user.photo,
+        photo: nextPhoto,
       }),
     );
   };

@@ -26,9 +26,34 @@ import {
   type SelectChangeEvent,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { toSafePhotoUrl } from "../utils/mediaUrl";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
 
+const toAbsoluteMediaUrl = (value: unknown): string => {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  if (/^(https?:\/\/|blob:|data:)/i.test(raw)) {
+    if (
+      typeof window !== "undefined" &&
+      window.location.protocol === "https:" &&
+      /^http:\/\//i.test(raw)
+    ) {
+      return raw.replace(/^http:\/\//i, "https://");
+    }
+    return raw;
+  }
+  const absoluteUrl = `${API_ORIGIN}${raw.startsWith("/") ? "" : "/"}${raw}`;
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    /^http:\/\//i.test(absoluteUrl)
+  ) {
+    return absoluteUrl.replace(/^http:\/\//i, "https://");
+  }
+  return absoluteUrl;
+};
 
 function resolveInitialLanguage(): LanguageCode {
   const raw = (localStorage.getItem(STORAGE_LANGUAGE_KEY) || "").trim();

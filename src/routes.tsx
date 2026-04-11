@@ -34,6 +34,33 @@ import { toSafePhotoUrl } from "./utils/mediaUrl";
 // import type { Clinic } from "./types/clinic.types";
 
 let profileRestoreTokenInFlight: string | null = null;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
+
+const toAbsoluteMediaUrl = (value: unknown): string => {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  if (/^(https?:\/\/|blob:|data:)/i.test(raw)) {
+    if (
+      typeof window !== "undefined" &&
+      window.location.protocol === "https:" &&
+      /^http:\/\//i.test(raw)
+    ) {
+      return raw.replace(/^http:\/\//i, "https://");
+    }
+    return raw;
+  }
+  const absoluteUrl = `${API_ORIGIN}${raw.startsWith("/") ? "" : "/"}${raw}`;
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    /^http:\/\//i.test(absoluteUrl)
+  ) {
+    return absoluteUrl.replace(/^http:\/\//i, "https://");
+  }
+  return absoluteUrl;
+};
 
 const MainLayout = lazy(() => import("./components/Layout/MainLayout"));
 const ReviewFormPage = lazy(() => import("./components/Reputation/ReviewForm"));
